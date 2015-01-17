@@ -1,26 +1,13 @@
 class cassandra::install {
 
-    if !defined (Package['java']) {
-      package { 'java':
-        ensure  => installed,
-        name    => 'openjdk-7-jre'
-      }
-    }
+    class { 'cassandra::install::java': }
+
+    class { 'cassandra::install::python-cql': }
 
     package { 'dsc':
         ensure  => $cassandra::version,
         name    => $cassandra::package_name,
         require => Package['java']
-    }
-
-    $python_cql_name = $::osfamily ? {
-        'Debian'    => 'python-cql',
-        'RedHat'    => 'python26-cql',
-        default     => 'python-cql',
-    }
-
-    package { $python_cql_name:
-        ensure => installed,
     }
 
     if ($::osfamily == 'Debian') {

@@ -250,7 +250,7 @@ class cassandra(
         client_encryption_truststore          => $client_encryption_truststore,
         client_encryption_truststore_password => $client_encryption_truststore_password,
         client_encryption_cipher_suites       => $client_encryption_cipher_suites,
-}
+    }
 
 
     class { 'cassandra::service':
