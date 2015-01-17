@@ -11,7 +11,11 @@ describe 'cassandra' do
     }
   end
 
-  let(:params) {{ :seeds => ['1.2.3.4'], :broadcast_address => '4.3.2.1' }}
+  let(:params) {{
+      :seeds => ['1.2.3.4'],
+      :broadcast_address => '4.3.2.1',
+      :broadcast_rpc_address => '1.2.3.4'
+  }}
 
   context 'verify module' do
 
@@ -90,6 +94,7 @@ describe 'cassandra' do
         :listen_address             => '1.2.3.4',
         :broadcast_address          => '4.3.2.1',
         :rpc_address                => '0.0.0.0',
+        :broadcast_rpc_address      => '1.2.3.4',
         :rpc_port                   => 9160,
         :rpc_server_type            => 'hsha',
         :rpc_min_threads            => 0,
@@ -167,6 +172,7 @@ describe 'cassandra' do
                     :listen_address             => [['1.2.3.4'], ['4.5.6']],
                     :broadcast_address          => [['1.2.3.4'], ['1.2', 'foo']],
                     :rpc_address                => [['1.2.3.4'], ['4.5.6']],
+                    :broadcast_rpc_address      => [['1.2.3.4'], ['0.0.0.0']],
                     :rpc_port                   => [[1, 65535], [420000, true]],
                     :storage_port               => [[1, 65535], [420000, true]],
                     :internode_compression      => [['all', 'dc' ,'none'], [9, 'bozo', true]],
@@ -183,7 +189,11 @@ describe 'cassandra' do
 
         pattern[0].each do |p|
 
-          let(:params) {{ :seeds => ['1.2.3.4'], param => p }}
+          let(:params) {{
+              :seeds => ['1.2.3.4'],
+              :broadcast_rpc_address => '1.2.3.4',
+              param => p
+          }}
 
           it "succeeds with #{p}" do
             should contain_class('cassandra::install')
@@ -195,7 +205,11 @@ describe 'cassandra' do
 
         pattern[1].each do |p|
 
-          let(:params) {{ :seeds => ['1.2.3.4'], param => p }}
+          let(:params) {{
+              :seeds => ['1.2.3.4'],
+              :broadcast_rpc_address => '1.2.3.4',
+              param => p
+          }}
 
           it "fails with #{p}" do
             expect {

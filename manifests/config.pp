@@ -13,6 +13,7 @@ class cassandra::config(
     $authenticator,
     $authorizer,
     $rpc_address,
+    $broadcast_rpc_address,
     $rpc_port,
     $rpc_server_type,
     $rpc_min_threads,

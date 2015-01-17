@@ -25,6 +25,7 @@ class cassandra(
     $start_native_transport                 = $cassandra::params::start_native_transport,
     $start_rpc                              = $cassandra::params::start_rpc,
     $rpc_address                            = $cassandra::params::rpc_address,
+    $broadcast_rpc_address                  = $cassandra::params::broadcast_rpc_address,
     $rpc_port                               = $cassandra::params::rpc_port,
     $rpc_server_type                        = $cassandra::params::rpc_server_type,
     $rpc_min_threads                        = $cassandra::params::rpc_min_threads,
@@ -128,6 +129,17 @@ class cassandra(
         fail('rpc_address must be an IP address')
     }
 
+    # This parameter only applies to later versions of C*
+    if (versioncmp($version, '2.1') >= 0) {
+        if(!empty($broadcast_rpc_address) and !is_ip_address($broadcast_rpc_address)) {
+            fail('broadcast_rpc_address must be an IP address')
+        }
+        elsif ($broadcast_rpc_address == '0.0.0.0'
+          or empty($broadcast_rpc_address) and $rpc_address == '0.0.0.0') {
+            fail('broadcast_rpc_address must not be 0.0.0.0, and if rpc_address is 0.0.0.0 then broadcast_rpc_address must be explicitly set to a different value.')
+        }
+    }
+
     if(!is_integer($rpc_port)) {
         fail('rpc_port must be a port number between 1 and 65535')
     }
@@ -200,6 +212,7 @@ class cassandra(
         authenticator                         => $authenticator,
         authorizer                            => $authorizer,
         rpc_address                           => $rpc_address,
+        broadcast_rpc_address                 => $broadcast_rpc_address,
         rpc_port                              => $rpc_port,
         rpc_server_type                       => $rpc_server_type,
         rpc_min_threads                       => $rpc_min_threads,
