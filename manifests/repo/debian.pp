@@ -7,6 +7,9 @@ class cassandra::repo::debian(
     $key_source,
     $pin,
 ) {
+
+    include apt
+
     apt::source { $repo_name:
         location    => $location,
         release     => $release,

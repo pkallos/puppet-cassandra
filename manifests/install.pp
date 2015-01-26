@@ -1,8 +1,8 @@
 class cassandra::install {
 
-    class { 'cassandra::install::java': }
+    include cassandra::install::java
 
-    class { 'cassandra::install::python-cql': }
+    include cassandra::install::python-cql
 
     package { 'dsc':
         ensure  => $cassandra::version,
