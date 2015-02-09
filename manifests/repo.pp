@@ -34,9 +34,20 @@ class cassandra::repo (
                 require   => Anchor['cassandra::repo::begin'],
             }
         }
-        default: {
-            fail("OS family ${::osfamily} not supported")
-        }
+        default: { case $::operatingsystem {
+            'Amazon': {
+                class { 'cassandra::repo::redhat':
+                    repo_name => $repo_name,
+                    baseurl   => $baseurl,
+                    gpgkey    => $gpgkey,
+                    gpgcheck  => $gpgcheck,
+                    enabled   => $enabled,
+                }
+            }
+            default: {
+                fail("OS family ${::osfamily} not supported")
+            }
+        }}
     }
 
     anchor {'cassandra::repo::begin': } -> anchor {'cassandra::repo::end': }

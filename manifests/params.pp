@@ -13,16 +13,22 @@ class cassandra::params {
         undef   => $::osfamily ? {
             'Debian' => 'http://debian.datastax.com/community',
             'RedHat' => 'http://rpm.datastax.com/community/',
-            default  => undef,
+            default  => $::operatingsystem ? {
+              'Amazon' => 'http://rpm.datastax.com/community/',
+              default  => undef,
+            }
         },
-        default => $::cassandra_repo_baseurl
+        default  => $::cassandra_repo_baseurl,
     }
 
     $repo_gpgkey = $::cassandra_repo_gpgkey ? {
         undef   => $::osfamily ? {
             'Debian' => 'http://debian.datastax.com/debian/repo_key',
             'RedHat' => 'http://rpm.datastax.com/rpm/repo_key',
-            default  => undef,
+            default  => $::operatingsystem ? {
+              'Amazon' => 'http://rpm.datastax.com/rpm/repo_key',
+              default  => undef,
+            }
         },
         default => $::cassandra_repo_gpgkey
     }
@@ -35,7 +41,7 @@ class cassandra::params {
     $repo_key_id = $::cassandra_repo_key_id ? {
         undef   => $::osfamily ? {
             'Debian' => 'B999A372',
-            default  => undef,
+            default  => '',
         },
         default => $::cassandra_repo_key_id
     }
@@ -76,6 +82,11 @@ class cassandra::params {
                 undef   => '/etc/cassandra',
                 default => $::cassandra_config_path,
             }
+
+            $version = $::cassandra_version ? {
+                undef   => '2.1.2',
+                default => $::cassandra_version,
+            }
         }
         'RedHat': {
             $package_name = $::cassandra_package_name ? {
@@ -92,15 +103,40 @@ class cassandra::params {
                 undef   => '/etc/cassandra/conf',
                 default => $::cassandra_config_path,
             }
+
+            $version = $::cassandra_version ? {
+                undef   => '2.1.2',
+                default => $::cassandra_version,
+            }
         }
         default: {
-            fail("Unsupported osfamily: ${::osfamily}, operatingsystem: ${::operatingsystem}, module ${module_name} only supports osfamily Debian")
-        }
-    }
+            case $::operatingsystem {
+                'Amazon': {
+                    $package_name = $::cassandra_package_name ? {
+                        undef   => 'dsc21',
+                        default => $::cassandra_package_name,
+                    }
 
-    $version = $::cassandra_version ? {
-        undef   => '2.1.2',
-        default => $::cassandra_version,
+                    $service_name = $::cassandra_service_name ? {
+                        undef   => 'cassandra',
+                        default => $::cassandra_service_name,
+                    }
+
+                    $config_path = $::cassandra_config_path ? {
+                        undef   => '/etc/cassandra/conf',
+                        default => $::cassandra_config_path,
+                    }
+
+                    $version = $::cassandra_version ? {
+                        undef   => '2.1.2-1',
+                        default => $::cassandra_version,
+                    }
+                }
+                default: {
+                    fail("Unsupported osfamily: ${::osfamily}, operatingsystem: ${::operatingsystem}, module ${module_name} only supports osfamily Debian, RedHat or operatingsystem Amazon")
+                }
+            }
+        }
     }
 
     $max_heap_size = $::cassandra_max_heap_size ? {
@@ -151,6 +187,11 @@ class cassandra::params {
     $rpc_address = $::cassandra_rpc_address ? {
         undef   => '0.0.0.0',
         default => $::cassandra_rpc_address,
+    }
+
+    $broadcast_rpc_address = $::cassandra_broadcast_rpc_address ? {
+        undef   => $broadcast_address,
+        default => $::cassandra_broadcast_rpc_address,
     }
 
     $rpc_port = $::cassandra_rpc_port ? {
